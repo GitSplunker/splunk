@@ -1,0 +1,113 @@
+
+Maven :-
+https://mkyong.com/maven/how-to-install-maven-in-windows/
+https://mkyong.com/maven/how-to-install-maven-in-ubuntu/
+Java :
+https://www.eternalsoftsolutions.com/blog/how-to-install-java-in-aws-ec2/
+https://tecadmin.net/install-java-on-amazon-linux/
+
+Jenkins:
+
+Amazon linux 2 or rhel same process:
+https://devopscube.com/how-to-install-latest-sonatype-nexus-3-on-linux/
+
+ubuntu /debain :
+
+ apache tomcat /webservers:
+
+ https://linuxize.com/post/how-to-install-tomcat-9-on-ubuntu-18-04/
+
+https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-16-04
+***********************************
+Tomcat installation on EC2 instance
+Follow this article in YouTube
+Prerequisites
+EC2 instance with Java v1.8.x
+Install Apache Tomcat
+Download tomcat packages from https://tomcat.apache.org/download-80.cgi onto /opt on EC2 instance
+
+  # create tomcat directory
+  cd /opt
+  wget http://mirrors.fibergrid.in/apache/tomcat/tomcat-8/v8.5.35/bin/apache-tomcat-8.5.35.tar.gz
+  tar -xvzf /opt/apache-tomcat-8.5.35.tar.gz
+give executing permissions to startup.sh and shutdown.sh which are under bin.
+
+   chmod +x /opt/apache-tomcat-8.5.35/bin/startup.sh shutdown.sh
+create link files for tomcat startup.sh and shutdown.sh
+
+  ln -s /opt/apache-tomcat-8.5.35/bin/startup.sh /usr/local/bin/tomcatup
+  ln -s /opt/apache-tomcat-8.5.35/bin/shutdown.sh /usr/local/bin/tomcatdown
+  tomcatup
+check point :
+access tomcat application from browser on prot 8080
+http://<Public_IP>:8080
+
+Using unique ports for each application is a best practice in an environment. But tomcat and Jenkins runs on ports number 8080. Hence lets change tomcat port number to 8090. Change port number in conf/server.xml file under tomcat home
+
+cd /opt/apache-tomcat-8.5.35/conf
+# update port number in the "connecter port" field in server.xml
+# restart tomcat after configuration update
+tomcatdown
+tomcatup
+check point :
+access tomcat application from browser on prot 8090
+http://<Public_IP>:8090
+
+now application is accessible on port 8090. but tomcat application doesnt allow to login from browser. changing a default parameter in context.xml does address this issue
+
+#search for context.xml
+find / -name context.xml
+above command gives 3 context.xml files. comment () Value ClassName field on files which are under webapp directory. After that restart tomcat services to effect these changes
+
+tomcatdown
+tomcatup
+Update users information in the tomcat-users.xml file goto tomcat home directory and Add below users to conf/tomcat-user.xml file
+
+	<role rolename="manager-gui"/>
+	<role rolename="manager-script"/>
+	<role rolename="manager-jmx"/>
+	<role rolename="manager-status"/>
+	<user username="admin" password="admin" roles="manager-gui, manager-script, manager-jmx, manager-status"/>
+	<user username="deployer" password="deployer" roles="manager-script"/>
+	<user username="tomcat" password="s3cret" roles="manager-gui"/>
+Restart serivce and try to login to tomcat application from the browser. This time it should be Successful
+
+***********************************************************************
+nfs server 
+*************
+    1 hostnamectl set-hostname nfsserver
+    2  hostname
+    3  rpm -qa |grep nfs-utils
+    4  systemctl start nfs-server rpcbind
+    5  mkdir /nfsfileshare
+    6  ll/
+    7  ll /
+    8  chmod 777 /nfsfileshare/
+    9  ls
+   10  ll
+   11  ll /
+   12  vi /etc/exports
+/nfsfileshare 18.224.1.4(rw,sync,no_root_squash)
+   13  exportfs -r
+   14  touch file1 file2 file3 file4 file5
+   15  ls
+   16  ll -a
+   17  ls
+   18  rm -rf file*
+******************
+nfs client:
+1  ls
+    2  mkdir /mnt/nfsfileshare
+    3  ls
+    4  ll /
+    5  cd mnt
+    6  mount 18.216.165.4:/nfsfileshare /mnt/nfsfileshare
+    7  cd /mnt/nfsfileshare
+    8  ls
+    9  ll /
+   10  rm -rf file*
+   11  ls
+   12  ll
+***************
+for u r refernce using nfs server:
+https://www.itzgeek.com/how-tos/linux/centos-how-tos/how-to-setup-nfs-server-on-centos-7-rhel-7-fedora-22.html
